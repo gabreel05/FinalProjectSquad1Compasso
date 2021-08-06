@@ -1,0 +1,12 @@
+https:
+  basepath: "/"
+  path: "/mocking/api/v1/sources/exchange/assets/seuservicemock"
+  port: "443"
+  host: "anypoint.mulesoft.com"
+  
+ftp:
+  directory: "/tmp"
+  host: "files.000webhost.com"
+  port: "21"
+  usuario: "seuuser"
+  senha: "suasenha"
