@@ -8,8 +8,15 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="d2dba360-7d58-49fc-8f32-d4d38813de29" >
 		<http:listener-connection host="0.0.0.0" port="8081" />
 	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="4b4095c1-c006-4834-a8c4-64edda593177" >
+		<http:request-connection port="443" host=" anypoint.mulesoft.com"/>
+	</http:request-config>
 	<flow name="final-project-squad1-compassoFlow" doc:id="fcda8a61-5884-4999-91d4-50fbb29dca04" >
 		<http:listener doc:name="Listener" doc:id="a00b5f15-8843-4151-a559-bb4122bac43f" config-ref="HTTP_Listener_config" path="/api"/>
+		<flow-ref doc:name="recuperacao-de-dados" doc:id="5578e34a-5d86-4012-94c7-7cb78602cd76" name="/get"/>
+		<flow-ref doc:name="requisicao" doc:id="8862b4fb-250d-419c-aeee-6e0f93ab1c25" name="requisição-e-filtragem-da-mensagem"/>
+		<flow-ref doc:name="payload to CSV" doc:id="b7b4dfab-7242-42a2-b21d-83eddd7a65f8" name="payload-to-CSV"/>
+		<flow-ref doc:name="CSV to FTP" doc:id="299f6884-7767-4946-bed6-15a362097ca3" name="CSV-to-FTP"/>
 		<set-variable value='#["Hello World"]' doc:name="Set Variable" doc:id="83bb154f-e411-4ed0-8165-1923f06a3ac9" variableName="message"/>
 		<ee:transform doc:name="Transform Message" doc:id="66fd037e-7e0b-454b-b43c-35b6034844c2" >
 			<ee:message >
@@ -22,4 +29,17 @@ output application/json
 			</ee:message>
 		</ee:transform>
 	</flow>
+	<flow name="/get" doc:id="187498f7-ae11-4197-a8c5-f4662f9086d2" >
+		<http:listener doc:name="/get" doc:id="a3f7ceec-4146-47cc-9bb1-d8622d7db746" config-ref="HTTP_Listener_config" path="/findPredictTimeWeek" allowedMethods="GET"/>
+	</flow>
+	<flow name="requisição-e-filtragem-da-mensagem" doc:id="a56e801c-961e-410d-9d81-043a22ff80e7" >
+		<http:request method="GET" doc:name="Request" doc:id="ee428718-2bd8-4fbe-aded-962b9ad68632" path="/mocking/api/v1/sources/exchange/assets/seuservicemock" config-ref="HTTP_Request_configuration"/>
+	</flow>
+	<flow name="payload-to-CSV" doc:id="cc12f685-e521-47a5-b881-97cc4e39293e" >
+		<http:listener doc:name="Listener" doc:id="383330fa-9757-4ec4-aa9e-6406e4f6a2d9" config-ref="HTTP_Listener_config" path="/findPredictTimeWeek"/>
+	</flow>
+	<flow name="CSV-to-FTP" doc:id="bafc8136-7829-4f40-86ee-52a5a683f2b6" >
+		<http:listener doc:name="Listener" doc:id="3ec99e7e-8d97-4ac5-9da7-de47e6afc91b" config-ref="HTTP_Listener_config" path="/findPredictTimeWeek"/>
+	</flow>
+
 </mule>
