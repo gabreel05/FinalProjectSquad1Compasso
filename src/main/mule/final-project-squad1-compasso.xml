@@ -11,7 +11,7 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="4b4095c1-c006-4834-a8c4-64edda593177" >
 		<http:request-connection port="443" host=" anypoint.mulesoft.com"/>
 	</http:request-config>
-	<flow name="final-project-squad1-compassoFlow" doc:id="fcda8a61-5884-4999-91d4-50fbb29dca04" >
+	<flow name="FlowPrincipal" doc:id="fcda8a61-5884-4999-91d4-50fbb29dca04" >
 		<http:listener doc:name="Listener" doc:id="a00b5f15-8843-4151-a559-bb4122bac43f" config-ref="HTTP_Listener_config" path="/api"/>
 		<flow-ref doc:name="recuperacao-de-dados" doc:id="5578e34a-5d86-4012-94c7-7cb78602cd76" name="/get"/>
 		<flow-ref doc:name="requisicao" doc:id="8862b4fb-250d-419c-aeee-6e0f93ab1c25" name="requisição-e-filtragem-da-mensagem"/>
