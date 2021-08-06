@@ -10,7 +10,7 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 	</http:listener-config>
 	<flow name="final-project-squad1-compassoFlow" doc:id="fcda8a61-5884-4999-91d4-50fbb29dca04" >
 		<http:listener doc:name="Listener" doc:id="a00b5f15-8843-4151-a559-bb4122bac43f" config-ref="HTTP_Listener_config" path="/api"/>
-		<set-variable value='#["Hello World"]' doc:name="Message" doc:id="5b711b11-0bee-4827-aee7-56f3a648571d" variableName="message"/>
+		<set-variable value='#["Hello World"]' doc:name="Set Variable" doc:id="83bb154f-e411-4ed0-8165-1923f06a3ac9" variableName="message"/>
 		<ee:transform doc:name="Transform Message" doc:id="66fd037e-7e0b-454b-b43c-35b6034844c2" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
