@@ -1,0 +1,4 @@
+%dw 2.0
+
+type auto_3ac04a44_3a17_41e1_a0f8_2dfe70f6017a_Output_Variables_estado = Any
+
