@@ -1,16 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
-	xmlns="http://www.mulesoft.org/schema/mule/core"
-	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
-http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd">
 	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="d2dba360-7d58-49fc-8f32-d4d38813de29" basePath="/api">
 		<http:listener-connection host="0.0.0.0" port="8081" />
 	</http:listener-config>
 	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="4b4095c1-c006-4834-a8c4-64edda593177" >
 		<http:request-connection port="443" host=" anypoint.mulesoft.com"/>
 	</http:request-config>
+	<ftp:config name="FTP_Config" doc:name="FTP Config" doc:id="3eb87f8f-de5a-4975-9257-ce4e6b664571" >
+		<ftp:connection host="files.000webhost.com" username="finalprojectmulesoft" password="Mulesoft@01" />
+	</ftp:config>
 	<flow name="FlowPrincipal" doc:id="fcda8a61-5884-4999-91d4-50fbb29dca04" >
 		<http:listener doc:name="Listener" doc:id="c3b2709a-e0d9-491c-98f8-272a51746827" config-ref="HTTP_Listener_config" path="/findPredictTimeWeek" />
 		<flow-ref doc:name="recuperacao-de-dados" doc:id="5578e34a-5d86-4012-94c7-7cb78602cd76" name="variaveis-de-entrada"/>
@@ -62,6 +66,7 @@ output application/json
 		<logger level="INFO" doc:name="Logger" doc:id="e74cb52b-2d95-4e04-8532-82b251d77c7d" message="#[null]"/>
 	</flow>
 	<flow name="CSV-to-FTP" doc:id="bafc8136-7829-4f40-86ee-52a5a683f2b6" >
+		<ftp:write doc:name="Write" doc:id="07a7c4d1-6267-495f-bb82-7eb1a459f67d" config-ref="FTP_Config" path="C:/previsao.csv"/>
 		<logger level="INFO" doc:name="Logger" doc:id="90b64182-7491-4215-b3a0-7bc9a307c9b1" message="#[null]"/>
 	</flow>
 
