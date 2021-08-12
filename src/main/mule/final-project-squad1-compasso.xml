@@ -65,10 +65,26 @@ output application/json
 		</ee:transform>
 	</sub-flow>
 	<sub-flow name="payload-to-CSV" doc:id="1c361433-9aac-4e5e-8d6a-62ef7b7484f1" >
-		<file:write doc:name="Write" doc:id="1a065648-db1e-4884-9dc6-5c14481be404" config-ref="File_Config" path="/tmp/previsao.json" />
+		<ee:transform doc:name="Transform Message" doc:id="70f8e4ee-9293-4059-8138-3ef5dc32a549" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/csv
+---
+flatten (payload.previsao map (
+    {
+        data: $.data,
+        diadasemana: $.diadasemana,
+        maxima: $.maxima,
+        minima: $.minima,
+        condicao: $.condicao
+    }
+))]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<file:write doc:name="Write" doc:id="1a065648-db1e-4884-9dc6-5c14481be404" config-ref="File_Config" path="/tmp/previsao.csv" />
 	</sub-flow>
 	<flow name="CSV-to-FTP" doc:id="bafc8136-7829-4f40-86ee-52a5a683f2b6" >
-		<ftp:write doc:name="Write" doc:id="07a7c4d1-6267-495f-bb82-7eb1a459f67d" config-ref="FTP_Config" path="C:/previsao.csv"/>
+		<ftp:write doc:name="Write" doc:id="2d563579-4506-485a-ae80-0ab833ce56f4" config-ref="FTP_Config" path="/tmp/previsao.csv"/>
 		<logger level="INFO" doc:name="Logger" doc:id="90b64182-7491-4215-b3a0-7bc9a307c9b1" message="#[null]"/>
 	</flow>
 
