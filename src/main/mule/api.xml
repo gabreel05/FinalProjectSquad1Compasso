@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<flow name="API-previsao-tempo" doc:id="276287ac-946d-42ae-813e-42186c2a1539" >
+		<http:listener doc:name="GET /findPredictTimeWeek" doc:id="a534f6db-b44d-4462-9648-01ea7153b10f" config-ref="HTTP_Listener_config" path="/findPredictTimeWeek" />
+		<flow-ref doc:name="Fluxo principal" doc:id="24603d7f-127f-42cf-8c97-81638222b7d4" name="fluxo-principal"/>
+	</flow>
+</mule>

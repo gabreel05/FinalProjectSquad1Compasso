@@ -1,6 +1,6 @@
 https:
   basepath: "/"
-  path: "/mocking/api/v1/sources/exchange/assets/seuservicemock"
+  path: "/mocking/api/v1/links/8aeead3d-817c-42f7-8ba9-09a4187d3a0d/findPredictTimeWeek"
   port: "443"
   host: "anypoint.mulesoft.com"
   
@@ -8,5 +8,8 @@ ftp:
   directory: "/tmp"
   host: "files.000webhost.com"
   port: "21"
-  usuario: "finalprojectmulesoft"
-  senha: "Mulesoft@01"
+  username: "finalprojectmulesoft"
+  password: "Mulesoft@01"
+  
+file:
+  name: "previsao.csv"

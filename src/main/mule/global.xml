@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd 
+http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="e01e7034-d34a-415e-8814-e56c8e6e122f" basePath="/api">
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="cbac70ff-2fe8-4a19-a40d-4615f397f74c" basePath="${https.basepath}">
+		<http:request-connection port="${https.port}" host="${https.host}" protocol="HTTPS"/>
+	</http:request-config>
+	<ftp:config name="FTP_Config" doc:name="FTP Config" doc:id="c3b004cf-db09-4c1c-a0a5-a0298ca23f08" >
+		<ftp:connection host="${ftp.host}" username="${ftp.username}" password="${ftp.password}" port="${ftp.port}" workingDir="${ftp.directory}"/>
+	</ftp:config>
+	<file:config name="File_Config" doc:name="File Config" doc:id="8ad10497-4f48-4b95-babe-568ac1ff9672" >
+		<file:connection workingDir="C:\" />
+	</file:config>
+	<configuration-properties doc:name="Configuration properties" doc:id="a3843eae-7db0-4683-b3e4-1198204f0433" file="properties.yaml" />
+	<error-handler name="globalError_Handler" doc:id="3797257c-2cee-4a5e-8583-ef909b6a1cd3" >
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="27c29771-73d7-4bc8-aa18-8696082ef814" >
+			<ee:transform doc:name="Transform Message" doc:id="1d5cd0dd-b9ec-419f-adf8-8ac6e3f60915" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"message": error.description default error.errorMessage
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+		</on-error-propagate>
+	</error-handler>
+</mule>

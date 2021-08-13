@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
+	<sub-flow name="fluxo-principal" doc:id="8497f0e9-5d32-4ab4-abc8-32053daa2503" >
+		<flow-ref doc:name="Recuperação dos Headers" doc:id="5578e34a-5d86-4012-94c7-7cb78602cd76" name="variaveis-de-entrada" />
+		<flow-ref doc:name="Requisição para o serviço Mock" doc:id="8862b4fb-250d-419c-aeee-6e0f93ab1c25" name="requisição-e-filtragem-da-mensagem" />
+		<flow-ref doc:name="Salvar CSV na máquina local" doc:id="b7b4dfab-7242-42a2-b21d-83eddd7a65f8" name="payload-para-CSV" />
+		<flow-ref doc:name="Salvar CSV no FTP" doc:id="299f6884-7767-4946-bed6-15a362097ca3" name="CSV-para-FTP" />
+	</sub-flow>
+	<sub-flow name="variaveis-de-entrada" doc:id="3ac04a44-3a17-41e1-a0f8-2dfe70f6017a" >
+		<set-variable value='#[attributes.headers.nomeDaCidade default "Pelotas"]' doc:name="nomeDaCidade" doc:id="34b49549-5d65-469d-aab6-58c573c02e13" variableName="nomeDaCidade" />
+		<set-variable value='#[attributes.headers.estado default "RS"]' doc:name="estado" doc:id="77d332d0-7b3b-4d00-a24a-f25e193404b3" variableName="estado" />
+	</sub-flow>
+	<sub-flow name="requisição-e-filtragem-da-mensagem" doc:id="ddbf91aa-f73a-4686-95e9-0e84c624c9f9" >
+		<http:request method="GET" doc:name="GET serviço Mock" doc:id="9b4da5f1-6ea0-4a05-a884-09ca7186e8db" config-ref="HTTP_Request_configuration" path="${https.path}">
+			<http:headers><![CDATA[#[output application/java
+---
+{
+	"estado" : vars.estado,
+	"nomeDaCidade" : vars.nomeDaCidade
+}]]]></http:headers>
+		</http:request>
+		<ee:transform doc:name="Response para JSON" doc:id="2a24702a-8a7f-49ae-bd1c-c46661098acf">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"cidade": payload.cidade,
+	"condicao_tempo": payload.condicao_tempo,
+	"nome_cidade": payload.nome_cidade,
+	"previsao": payload.previsao map(
+		{
+			"data": $.date,
+			"diadasemana": $.weekday,
+			"maxima": $.max,
+			"minima": $.min,
+			("condicao": "Chuva") if ($.condition == "rain"),
+			("condicao": "Tempo Limpo") if ($.condition == "clear_day"),
+			("condicao": "Tempo Nublado") if ($.condition == "cloudly_day")
+		}
+	)
+}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</sub-flow>
+	<sub-flow name="payload-para-CSV" doc:id="1c361433-9aac-4e5e-8d6a-62ef7b7484f1" >
+		<ee:transform doc:name="Payload para CSV" doc:id="70f8e4ee-9293-4059-8138-3ef5dc32a549" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/csv
+---
+flatten (payload.previsao map (
+    {
+        data: $.data,
+        diadasemana: $.diadasemana,
+        maxima: $.maxima,
+        minima: $.minima,
+        condicao: $.condicao
+    }
+))]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<file:write doc:name="previsao.csv - Máquina local" doc:id="1a065648-db1e-4884-9dc6-5c14481be404" config-ref="File_Config" path="${ftp.directory}/${file.name}" />
+	</sub-flow>
+	<sub-flow name="CSV-para-FTP" doc:id="f130b1aa-8d44-4e04-aad7-e138757534b1" >
+		<until-successful maxRetries="5" doc:name="Until Successful" doc:id="ac554e67-a659-4966-8e50-c69c05dbc502" millisBetweenRetries="5000">
+			<ftp:write doc:name="previsao.csv - FTP" doc:id="2d563579-4506-485a-ae80-0ab833ce56f4" config-ref="FTP_Config" path="${file.name}" />
+		</until-successful>
+		<logger level="INFO" doc:name="Logger" doc:id="90b64182-7491-4215-b3a0-7bc9a307c9b1" message='#["OK"]'/>
+	</sub-flow>
+
+</mule>
