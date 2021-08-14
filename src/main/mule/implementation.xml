@@ -12,6 +12,7 @@ http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/fil
 		<flow-ref doc:name="Requisição para o serviço Mock" doc:id="8862b4fb-250d-419c-aeee-6e0f93ab1c25" name="requisição-e-filtragem-da-mensagem" />
 		<flow-ref doc:name="Salvar CSV na máquina local" doc:id="b7b4dfab-7242-42a2-b21d-83eddd7a65f8" name="payload-para-CSV" />
 		<flow-ref doc:name="Salvar CSV no FTP" doc:id="299f6884-7767-4946-bed6-15a362097ca3" name="CSV-para-FTP" />
+		<flow-ref doc:name="Payload to JSON" doc:id="bc78bcf4-0001-4cc3-8047-bb36b9e2e253" name="Payload_to_JSON"/>
 	</sub-flow>
 	<sub-flow name="variaveis-de-entrada" doc:id="3ac04a44-3a17-41e1-a0f8-2dfe70f6017a" >
 		<set-variable value='#[attributes.headers.nomeDaCidade default "Pelotas"]' doc:name="nomeDaCidade" doc:id="34b49549-5d65-469d-aab6-58c573c02e13" variableName="nomeDaCidade" />
@@ -26,7 +27,8 @@ http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/fil
 	"nomeDaCidade" : vars.nomeDaCidade
 }]]]></http:headers>
 		</http:request>
-		<ee:transform doc:name="Response para JSON" doc:id="2a24702a-8a7f-49ae-bd1c-c46661098acf">
+		<try doc:name="Try" doc:id="79e9a39c-2ed6-4f39-b8ca-e5427b8335b8" >
+			<ee:transform doc:name="Response para JSON" doc:id="2a24702a-8a7f-49ae-bd1c-c46661098acf">
 			<ee:message>
 				<ee:set-payload><![CDATA[%dw 2.0
 output application/json
@@ -50,6 +52,22 @@ output application/json
 ]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
+			<error-handler >
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="89fa5148-6826-4678-86d5-1bcb89855c85" >
+					<ee:transform doc:name="Transform Message" doc:id="391a9d49-416d-48a9-a049-58da8fa054c4" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"mensagem": error.description default error.errorMessage
+}]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+				</on-error-continue>
+			</error-handler>
+		</try>
+		<set-variable value="#[payload]" doc:name="Payload - JSON" doc:id="77294358-cae0-4791-88e0-fde99a5a3ef9" variableName="payload_json"/>
 	</sub-flow>
 	<sub-flow name="payload-para-CSV" doc:id="1c361433-9aac-4e5e-8d6a-62ef7b7484f1" >
 		<ee:transform doc:name="Payload para CSV" doc:id="70f8e4ee-9293-4059-8138-3ef5dc32a549" >
@@ -75,6 +93,16 @@ flatten (payload.previsao map (
 			<ftp:write doc:name="previsao.csv - FTP" doc:id="2d563579-4506-485a-ae80-0ab833ce56f4" config-ref="FTP_Config" path="${file.name}" />
 		</until-successful>
 		<logger level="INFO" doc:name="Logger" doc:id="90b64182-7491-4215-b3a0-7bc9a307c9b1" message='#["OK"]'/>
+	</sub-flow>
+	<sub-flow name="Payload_to_JSON" doc:id="066b6d7b-0a8e-4a00-bd68-ffdc667b21a5" >
+		<ee:transform doc:name="Transform Message" doc:id="19a6db54-9b4a-42a2-8692-94331502226b" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+vars.payload_json]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
 	</sub-flow>
 
 </mule>

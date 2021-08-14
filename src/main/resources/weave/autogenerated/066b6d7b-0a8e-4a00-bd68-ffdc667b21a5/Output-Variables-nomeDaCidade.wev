@@ -1,0 +1,4 @@
+%dw 2.0
+
+type auto_066b6d7b_0a8e_4a00_bd68_ffdc667b21a5_Output_Variables_nomeDaCidade = Any
+
